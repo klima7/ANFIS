@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from scipy.optimize import minimize, basinhopping
-from scipy.stats import variation
-import scipy.optimize
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from itertools import permutations, combinations
-import time
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
 
-from helps_and_enhancers import calculate_combinations, my_reshape
+from helps_and_enhancers import calculate_combinations
 from operators import productN
-from params import FuzzyInputVariable_3Trapezoids, FuzzyInputVariable_2Trapezoids
+from optimizers import BaseOptimizer
+
 
 class ANFIS:
     
@@ -114,138 +107,6 @@ class ANFIS:
         self.training_data = training_data
         self.expected_labels = expected_labels
         
-    def train(self, global_optimization: bool, learn_premises: bool, learn_operators: bool, learn_consequents: bool, n_iter=100, bounds_premises=None):
-        
-        x1 = [ item for sublist in self.premises for item in sublist ]
-        x1 = np.array(x1).flatten()
-        x2 = self.op
-        x3 = self.tsk.flatten()
-          
-        if bounds_premises is None:
-            bfv = [(0,4)]*len(x1)
-        else:
-            bfv = bounds_premises
-        bop  = [(0.0,2.0)]*len(x2)
-        btsk = [(0,2)]*len(x3)
-        
-        niter_success=100
-            
-        if learn_premises and learn_operators and learn_consequents:
-            x0 = np.hstack((x1,x2,x3))
-            self.end_x1 = len(x1)
-            self.end_x2 = len(x1)+len(x2)
-            
-            bounds = bfv + bop + btsk
+    def train(self, optimiser: BaseOptimizer):
+        optimiser.optimize(self)
 
-            if global_optimization:
-                minimizer_kwargs = {"method":"SLSQP", "bounds": bounds, "args":(self)}
-                res = basinhopping(goal_premises_operators_consequents, x0, minimizer_kwargs=minimizer_kwargs, niter=n_iter, niter_success=niter_success) 
-            else:
-                res = minimize(goal_premises_operators_consequents, x0, method='SLSQP', bounds=bounds, args=self)
-                
-            self.set_premises_parameters(res.x[:self.end_x1].reshape(np.shape(self.premises)))
-            self.op=res.x[self.end_x1:self.end_x2]
-            self.tsk=res.x[self.end_x2:].reshape(np.shape(self.tsk))
-            
-        elif learn_premises and learn_operators:
-            x0 = np.hstack((x1,x2))
-            self.end_x1 = len(x1)
-            self.end_x2 = len(x1)+len(x2)
-            
-            bounds = bfv + bop
-
-            if global_optimization:
-                minimizer_kwargs = {"method":"SLSQP", "bounds": bounds}
-                res = basinhopping(goal_premises_operators, x0, minimizer_kwargs=minimizer_kwargs, niter=n_iter, niter_success=niter_success) 
-            else:
-                res = minimize(goal_premises_operators, x0, method='SLSQP', bounds=bounds, args=self)
-                
-            self.set_premises_parameters(res.x[:self.end_x1].reshape(np.shape(self.premises)))
-            self.op=res.x[self.end_x1:self.end_x2]
-
-        elif learn_premises and learn_consequents:
-            x0 = np.hstack((x1,x3))
-            self.end_x1 = len(x1)
-            self.end_x2 = len(x1)
-            
-            bounds = bfv + btsk
-
-            if global_optimization:
-                minimizer_kwargs = {"method":"SLSQP", "bounds": bounds, "args":(self)}
-                res = basinhopping(goal_premises_consequents, x0, minimizer_kwargs=minimizer_kwargs, niter=n_iter)#, niter_success=niter_success)
-            else:
-                res = minimize(goal_premises_consequents, x0, method='SLSQP', bounds=bounds, args=self, tol=1e-6)
-
-            self.set_premises_parameters(res.x[:self.end_x1]) ##zmiana funkcji
-            self.tsk=res.x[self.end_x2:].reshape(np.shape(self.tsk))
-
-        elif learn_operators and learn_consequents:
-            print("4")
-            x0 = np.hstack((x2,x3))
-            self.end_x1 = 0
-            self.end_x2 = len(x2)
-            
-            bounds = bop + btsk
-
-            if global_optimization:
-                minimizer_kwargs = {"method":"SLSQP", "bounds": bounds}
-                res = basinhopping(goal_operators_consequents, x0, minimizer_kwargs=minimizer_kwargs, niter=n_iter, niter_success=niter_success) 
-            else:
-                res = minimize(goal_operators_consequents, x0, method='SLSQP', bounds=bounds, args=self)
-                
-            self.op=res.x[self.end_x1:self.end_x2]
-            self.tsk=res.x[self.end_x2:].reshape(np.shape(self.tsk))
-        
-        elif learn_premises:
-            x0 = x1
-            self.end_x1 = len(x1)
-            self.end_x2 = len(x1)
-            
-            bounds = bfv
-
-            if global_optimization:
-                minimizer_kwargs = {"method":"SLSQP", "bounds": bounds}
-                res = basinhopping(goal_premises, x0, minimizer_kwargs=minimizer_kwargs, niter=n_iter, niter_success=niter_success) 
-            else:
-                res = minimize(goal_premises, x0, method='SLSQP', bounds=bounds, args=self)
-                
-            self.set_premises_parameters(res.x[:].reshape(np.shape(self.premises)))
-
-        elif learn_operators:
-            x0 = x2
-            self.end_x1 = 0
-            self.end_x2 = len(x2)
-            
-            bounds = bop
-
-            if global_optimization:
-                minimizer_kwargs = {"method":"SLSQP", "bounds": bounds}
-                res = basinhopping(goal_operators, x0, minimizer_kwargs=minimizer_kwargs, niter=n_iter, niter_success=niter_success) 
-            else:
-                res = minimize(goal_operators, x0, method='SLSQP', bounds=bounds, args=self)
-                
-            self.op=res.x[:]
-            
-        elif learn_consequents:
-            x0 = x3
-            self.end_x1 = 0
-            self.end_x2 = 0
-            
-            bounds = btsk
-
-            if global_optimization:
-                minimizer_kwargs = {"method":"SLSQP", "bounds": bounds, "args":(self), "tol":1e-03}
-                res = basinhopping(goal_consequents, x0, minimizer_kwargs=minimizer_kwargs, niter=n_iter, niter_success=niter_success) 
-            else:
-                res = minimize(goal_consequents, x0, method='SLSQP', bounds=bounds, args=self)
-                
-            self.tsk=res.x[:].reshape(np.shape(self.tsk))
-            
-        else:
-            print("Error")
-            assert(0)
-            
-        print("Optymalizacja zakończona!")
-        print("z blędem:  ", res.fun)
-        print("Liczba ew: ", res.nfev)
-        print("Liczba it: ", res.nit)
