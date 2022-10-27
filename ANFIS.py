@@ -60,7 +60,10 @@ class ANFIS:
         rounded = np.round(y_pred.flatten()).astype(int)
         r_shape = np.shape(rounded)
         return np.max((np.min((rounded , np.ones(r_shape)),axis=0), np.zeros(r_shape)),axis=0)#clamp 0-1       
-               
+
+    def estimate_labels(self):
+        return self.anfis_estimate_labels(self.premises, self.op, self.tsk)
+
     def anfis_estimate_labels(self, fv, op, tsk) -> np.ndarray:
 
         data = self.training_data
