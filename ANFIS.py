@@ -14,9 +14,6 @@ from helps_and_enhancers import calculate_combinations, my_reshape
 from operators import productN
 from params import FuzzyInputVariable_3Trapezoids, FuzzyInputVariable_2Trapezoids
 
-from goal_function_object import *
-
-
 class ANFIS:
     
     def __init__(self, inputs, training_data: np.ndarray, expected_labels: np.ndarray, operator_function=productN, operator_init_value=0.5):
