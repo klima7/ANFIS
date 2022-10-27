@@ -42,7 +42,10 @@ optimizer = GeneticOptimizer(
     MultiPointCrossing(1),
     NRandomChangesMutation(5),
     RouletteWheelSelection(),
-    n_generations=1000
+    mutate_prob=0.2,
+    n_chromosomes=100,
+    n_generations=1000,
+    learn_operators=False
 )
 
 start = time.time()

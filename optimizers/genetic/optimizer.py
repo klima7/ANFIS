@@ -2,6 +2,7 @@ from typing import Tuple
 
 from einops import rearrange
 import numpy as np
+from tqdm import tqdm
 
 from ..base import BaseOptimizer
 from .bases import BaseFitness, BaseMutation, BaseCrossing, BaseSelection
@@ -64,11 +65,14 @@ class GeneticOptimizer(BaseOptimizer):
         self.anfis = anfis
         self._init_aux_variables(anfis)
 
+        parameters_count = self._get_genotype_length()
+        print(f'Optimizing {parameters_count} parameters')
+
         self.genotypes = self._generate_population()
         self.fitnesses = self._get_fitnesses(self.genotypes)
         self._order_by_fitness()
 
-        for generation_no in range(self.n_generations):
+        for _ in tqdm(range(self.n_generations), total=self.n_generations, desc='Evolution'):
             self._evolve()
 
         best_weights = self._get_weights_from_genotype(self.genotypes[0])
@@ -101,7 +105,7 @@ class GeneticOptimizer(BaseOptimizer):
         return genotypes
 
     def _order_by_fitness(self):
-        sorted_indexes = np.argsort(self.fitnesses)
+        sorted_indexes = np.argsort(self.fitnesses)[::-1]
         self.genotypes = self.genotypes[sorted_indexes]
         self.fitnesses = self.fitnesses[sorted_indexes]
 
@@ -153,12 +157,12 @@ class GeneticOptimizer(BaseOptimizer):
         params_bounds = [self.bounds_premises, self.bounds_operators, self.bounds_consequents]
 
         for learn_flag, param_length, bounds in zip(learn_flags, params_lengths, params_bounds):
-            if not learn_flag:
+            if learn_flag:
+                norm_weights = genotype[current_pos:current_pos + param_length]
+                weights = norm_weights * (bounds[1] - bounds[0]) + bounds[0]
+                all_weights.append(weights)
+                current_pos += param_length
+            else:
                 all_weights.append(None)
-
-            norm_weights = genotype[current_pos:current_pos+param_length]
-            weights = norm_weights * (bounds[1] - bounds[0]) + bounds[0]
-            all_weights.append(weights)
-            current_pos += param_length
 
         return all_weights
