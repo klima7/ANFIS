@@ -39,9 +39,9 @@ class MultiPointCrossing(BaseCrossing):
         self.n_points = n_points
 
     def __call__(self, first_parent, second_parent):
-        split_indexes = np.arange(1, len(first_parent)+1)
+        split_indexes = np.arange(1, len(first_parent)-1)
         np.random.shuffle(split_indexes)
-        split_indexes = split_indexes[:self.n_points]
+        split_indexes = np.sort(split_indexes[:self.n_points])
 
         merged_parents = np.row_stack([first_parent, second_parent])
         parts = np.split(merged_parents, split_indexes, axis=1)

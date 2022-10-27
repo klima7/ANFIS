@@ -39,12 +39,12 @@ fis.show_results()
 
 optimizer = GeneticOptimizer(
     SmallestMaeErrorFitness(),
-    MultiPointCrossing(1),
-    NRandomChangesMutation(5),
+    MultiPointCrossing(3),
+    NRandomChangesMutation(3),
     RouletteWheelSelection(),
     mutate_prob=0.2,
     n_chromosomes=100,
-    n_generations=1000,
+    n_generations=500,
     learn_operators=False
 )
 
