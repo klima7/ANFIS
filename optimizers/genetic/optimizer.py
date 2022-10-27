@@ -21,7 +21,7 @@ class GeneticOptimizer(BaseOptimizer):
 
             n_chromosomes: int = 100,
             n_generations: int = 50,
-            n_elite: int = 1,
+            n_elite: int = 2,
 
             bounds_premises: Tuple[float, float] = (0, 4),
             bounds_operators: Tuple[float, float] = (0, 2),
@@ -51,8 +51,8 @@ class GeneticOptimizer(BaseOptimizer):
         self.learn_operators = learn_operators
         self.learn_consequents = learn_consequents
 
-        self.genotypes = []
-        self.fitnesses = np.zeros((self.n_chromosomes,))
+        self.genotypes = None
+        self.fitnesses = None
 
         # aux
         self.anfis = None
@@ -63,7 +63,10 @@ class GeneticOptimizer(BaseOptimizer):
     def optimize(self, anfis):
         self.anfis = anfis
         self._init_aux_variables(anfis)
+
         self.genotypes = self._generate_population()
+        self.fitnesses = self._get_fitnesses(self.genotypes)
+        self._order_by_fitness()
 
         for generation_no in range(self.n_generations):
             self._evolve()
@@ -77,7 +80,7 @@ class GeneticOptimizer(BaseOptimizer):
         crossed = self._cross(selected)
         mutated = self._mutate(crossed)
 
-        self.genotypes = np.hstack(elite, mutated)
+        self.genotypes = np.vstack([elite, mutated])
         self.fitnesses = self._get_fitnesses(self.genotypes)
         self._order_by_fitness()
 
@@ -87,7 +90,7 @@ class GeneticOptimizer(BaseOptimizer):
     def _cross(self, genotypes):
         children = []
         np.random.shuffle(genotypes)
-        paired_genotypes = rearrange(genotypes, 'n g -> h1 h2 g', h2=2)
+        paired_genotypes = rearrange(genotypes, '(n p) g -> n p g', p=2)
         for parent1, parent2 in paired_genotypes:
             children.extend(self.crossing(parent1, parent2))
         return np.array(children)
@@ -108,7 +111,7 @@ class GeneticOptimizer(BaseOptimizer):
             weights = self._get_weights_from_genotype(genotype)
             self._config_anfis_from_weights(self.anfis, weights)
             fitness = self.fitness(self.anfis)
-            fitness.append(fitness)
+            fitnesses.append(fitness)
         return np.array(fitnesses)
 
     def _init_aux_variables(self, anfis):

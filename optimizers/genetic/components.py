@@ -7,7 +7,8 @@ class RouletteWheelSelection(BaseSelection):
 
     def __call__(self, chromosomes, fitnesses, select_count):
         all_indexes = np.arange(len(chromosomes))
-        selected_indexes = np.random.choice(all_indexes, size=select_count, p=fitnesses)
+        probability = fitnesses / np.sum(fitnesses)
+        selected_indexes = np.random.choice(all_indexes, size=select_count, p=probability)
         return chromosomes[selected_indexes]
 
 
