@@ -6,8 +6,8 @@ from . import BaseOptimizer
 
 class DefaultOptimizer(BaseOptimizer):
 
-    def __init__(self, global_optimization: bool, learn_premises: bool, learn_operators: bool, learn_consequents: bool,
-                 n_iter=100, bounds_premises=None):
+    def __init__(self, global_optimization: bool = True, learn_premises: bool = True, learn_operators: bool = False,
+                 learn_consequents: bool = True, n_iter=100, bounds_premises=None):
         self.learn_premises = learn_premises
         self.learn_operators = learn_operators
         self.learn_consequents = learn_consequents
@@ -151,11 +151,6 @@ class DefaultOptimizer(BaseOptimizer):
         else:
             print("Error")
             assert (0)
-
-        print("Optymalizacja zakończona!")
-        print("z blędem:  ", res.fun)
-        print("Liczba ew: ", res.nfev)
-        print("Liczba it: ", res.nit)
 
 
 def goal_premises_operators_consequents(input, self):

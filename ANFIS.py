@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from time import time
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -106,7 +108,9 @@ class ANFIS:
     def set_training_and_testing_data(self, training_data, expected_labels):
         self.training_data = training_data
         self.expected_labels = expected_labels
-        
-    def train(self, optimiser: BaseOptimizer):
-        optimiser.optimize(self)
 
+    def train(self, optimiser: BaseOptimizer):
+        start = time()
+        optimiser.optimize(self)
+        duration = time() - start
+        print(f'Optimization finished after {duration:.2f}s')
