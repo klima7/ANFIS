@@ -46,6 +46,12 @@ class ANFIS:
         self.premises=fv
         for i in range(self.input_number):
             self.input_list[i].set(*fv[i])
+
+    def set_tsk_parameter(self, tsk):
+        self.tsk = tsk.reshape(np.shape(self.tsk))
+
+    def set_op_parameter(self, op):
+        self.op = np.array(op).flatten()
              
     def calculate_aids(self):
         self.premises_combinations = np.array(calculate_combinations(self))[:,::-1]
