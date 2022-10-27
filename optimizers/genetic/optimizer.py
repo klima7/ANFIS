@@ -3,8 +3,8 @@ from typing import Tuple
 from einops import rearrange
 import numpy as np
 
-from .. import BaseOptimizer
-from . import BaseFitness, BaseMutation, BaseCrossing, BaseSelection
+from ..base import BaseOptimizer
+from .bases import BaseFitness, BaseMutation, BaseCrossing, BaseSelection
 
 
 class GeneticOptimizer(BaseOptimizer):
@@ -28,7 +28,7 @@ class GeneticOptimizer(BaseOptimizer):
             bounds_consequents: Tuple[float, float] = (0, 2),
 
             learn_premises: bool = True,
-            learn_operators: bool = False,
+            learn_operators: bool = True,
             learn_consequents: bool = True
     ):
         self.fitness = fitness

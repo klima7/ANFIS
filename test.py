@@ -6,7 +6,8 @@ from ANFIS import ANFIS
 import time
 from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.model_selection import train_test_split
-from optimizers import DefaultOptimizer
+from optimizers import DefaultOptimizer, GeneticOptimizer
+from optimizers.genetic.components import SmallestMaeErrorFitness, MultiPointCrossing, NRandomChangesMutation, RouletteWheelSelection
 
 
 x = np.arange(0, 1, 0.1)
@@ -34,8 +35,16 @@ print("Parametry początkowe:\nPrzesłanki: ",fis.premises, "\nKonkluzje: ", fis
 fis.show_results()
 
 
+# optimizer = DefaultOptimizer(True, True, False, True, n_iter=50)
+
+optimizer = GeneticOptimizer(
+    SmallestMaeErrorFitness(),
+    MultiPointCrossing(1),
+    NRandomChangesMutation(5),
+    RouletteWheelSelection(),
+)
+
 start = time.time()
-optimizer = DefaultOptimizer(True, True, False, True, n_iter=50)
 fis.train(optimizer)
 end = time.time()
 print("TIME elapsed: ", end - start)
