@@ -86,7 +86,7 @@ class GeneticOptimizer(BaseOptimizer):
 
     def _cross(self, genotypes):
         children = []
-        np.shuffle(genotypes)
+        np.random.shuffle(genotypes)
         paired_genotypes = rearrange(genotypes, 'n g -> h1 h2 g', h2=2)
         for parent1, parent2 in paired_genotypes:
             children.extend(self.crossing(parent1, parent2))
