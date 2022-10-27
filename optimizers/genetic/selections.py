@@ -1,3 +1,5 @@
+import numpy as np
+
 from abc import ABC, abstractmethod
 
 
@@ -11,7 +13,9 @@ class BaseSelection(ABC):
 class RouletteWheelSelection(BaseSelection):
 
     def __call__(self, chromosomes, fitnesses, select_count):
-        pass
+        all_indexes = np.arange(len(chromosomes))
+        selected_indexes = np.random.choice(all_indexes, size=select_count, p=fitnesses)
+        return chromosomes[selected_indexes]
 
 
 class RankSelection(BaseSelection):
