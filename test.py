@@ -1,8 +1,7 @@
-
+import math
 from params import FuzzyInputVariable_2Trapezoids
 import numpy as np
 from ANFIS import ANFIS
-import time
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from optimizers.default import DefaultOptimizer
@@ -32,13 +31,15 @@ genetic_opt = GeneticOptimizer(
     SmallestMaeErrorFitness(),
     MultiPointCrossing(3),
     NRandomChangesMutation(2),
-    RankSelection(5),
+    RouletteWheelSelection(),
     cross_prob=0.7,
     mutate_prob=0.1,
     n_chromosomes=100,
-    n_generations=50000,
+    n_generations=1000000000,
     n_elite=2,
-    learn_operators=False
+    patience=1000,
+    learn_operators=False,
+    log_progress=True
 )
 
 optimizer = genetic_opt

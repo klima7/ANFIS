@@ -1,3 +1,4 @@
+import math
 from typing import Tuple
 
 from einops import rearrange
@@ -23,6 +24,7 @@ class GeneticOptimizer(BaseOptimizer):
             n_chromosomes: int = 100,
             n_generations: int = 1000,
             n_elite: int = 0,
+            patience: int = math.inf,
 
             bounds_premises: Tuple[float, float] = (0, 4),
             bounds_operators: Tuple[float, float] = (0, 2),
@@ -30,7 +32,8 @@ class GeneticOptimizer(BaseOptimizer):
 
             learn_premises: bool = True,
             learn_operators: bool = True,
-            learn_consequents: bool = True
+            learn_consequents: bool = True,
+            log_progress: bool = False,
     ):
         self.fitness = fitness
         self.crossing = crossing
@@ -43,6 +46,7 @@ class GeneticOptimizer(BaseOptimizer):
         self.n_chromosomes = n_chromosomes
         self.n_generations = n_generations
         self.n_elite = n_elite
+        self.patience = patience
 
         self.bounds_premises = bounds_premises
         self.bounds_operators = bounds_operators
@@ -51,6 +55,7 @@ class GeneticOptimizer(BaseOptimizer):
         self.learn_premises = learn_premises
         self.learn_operators = learn_operators
         self.learn_consequents = learn_consequents
+        self.log_progress = log_progress
 
         self.genotypes = None
         self.fitnesses = None
@@ -72,11 +77,23 @@ class GeneticOptimizer(BaseOptimizer):
         self.fitnesses = self._get_fitnesses(self.genotypes)
         self._order_by_fitness()
 
+        best_fitness = -math.inf
+        generations_without_change = 0
+
         for generation in tqdm(range(self.n_generations), total=self.n_generations, desc='Evolution'):
             self._evolve()
 
-            if generation % 100 == 0:
+            if self.log_progress and generation % 100 == 0:
                 print(self.fitnesses[0])
+
+            if self.fitnesses[0] > best_fitness:
+                best_fitness = self.fitnesses[0]
+                generations_without_change = 0
+            else:
+                generations_without_change += 1
+
+            if generations_without_change >= self.patience:
+                break
 
         best_weights = self._get_weights_from_genotype(self.genotypes[0])
         self._config_anfis_from_weights(self.anfis, best_weights)
@@ -121,7 +138,7 @@ class GeneticOptimizer(BaseOptimizer):
         return np.array(fitnesses)
 
     def _init_aux_variables(self, anfis):
-        self.premises_length = len([item for sublist in anfis.premises for item in sublist])
+        self.premises_length = np.array(anfis.premises).size
         self.operators_length = len(anfis.op)
         self.consequents_length = len(anfis.tsk.flatten())
 
