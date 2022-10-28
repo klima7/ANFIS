@@ -82,7 +82,7 @@ class GeneticOptimizer(BaseOptimizer):
         self._config_anfis_from_weights(self.anfis, best_weights)
 
     def _evolve(self):
-        elite = self.genotypes[:self.n_elite]
+        elite = np.array(self.genotypes[:self.n_elite])
         selected = self._select(self.genotypes)
         crossed = self._cross(selected)
         mutated = self._mutate(crossed)
