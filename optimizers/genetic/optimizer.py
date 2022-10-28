@@ -72,8 +72,11 @@ class GeneticOptimizer(BaseOptimizer):
         self.fitnesses = self._get_fitnesses(self.genotypes)
         self._order_by_fitness()
 
-        for _ in tqdm(range(self.n_generations), total=self.n_generations, desc='Evolution'):
+        for generation in tqdm(range(self.n_generations), total=self.n_generations, desc='Evolution'):
             self._evolve()
+
+            if generation % 100 == 0:
+                print(self.fitnesses[0])
 
         best_weights = self._get_weights_from_genotype(self.genotypes[0])
         self._config_anfis_from_weights(self.anfis, best_weights)
@@ -100,9 +103,8 @@ class GeneticOptimizer(BaseOptimizer):
         return np.array(children)
 
     def _mutate(self, genotypes):
-        for genotype in genotypes:
-            self.mutation(genotype)
-        return genotypes
+        mutated = [self.mutation(genotype) for genotype in genotypes]
+        return np.array(mutated)
 
     def _order_by_fitness(self):
         sorted_indexes = np.argsort(self.fitnesses)[::-1]

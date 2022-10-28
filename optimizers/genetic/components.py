@@ -31,12 +31,14 @@ class NRandomChangesMutation(BaseMutation):
         np.random.shuffle(indexes)
         indexes = indexes[:self.n_changes]
         chromosome[indexes] = np.random.random((self.n_changes,))
+        return chromosome
 
 
 class MultiPointCrossing(BaseCrossing):
 
-    def __init__(self, n_points=1):
+    def __init__(self, n_points=1, shuffle_parts=False):
         self.n_points = n_points
+        self.shuffle_parts = shuffle_parts
 
     def __call__(self, first_parent, second_parent):
         split_indexes = np.arange(1, len(first_parent)-1)
@@ -49,6 +51,9 @@ class MultiPointCrossing(BaseCrossing):
         for part in parts:
             np.random.shuffle(part)
 
+        if self.shuffle_parts:
+            np.random.shuffle(parts)
+
         reordered_merged = np.hstack(parts)
         first_child, second_child = reordered_merged[0], reordered_merged[1]
         return first_child, second_child
@@ -59,4 +64,5 @@ class SmallestMaeErrorFitness(BaseFitness):
     def __call__(self, anfis):
         predicted_labels = anfis.estimate_labels()
         error = np.sum(np.abs(predicted_labels - anfis.expected_labels))
-        return 1 / error
+        fitness = 1 / error
+        return fitness
