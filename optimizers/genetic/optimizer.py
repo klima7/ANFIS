@@ -4,7 +4,7 @@ from einops import rearrange
 import numpy as np
 from tqdm import tqdm
 
-from ..base import BaseOptimizer
+from .. import BaseOptimizer
 from .bases import BaseFitness, BaseMutation, BaseCrossing, BaseSelection
 
 

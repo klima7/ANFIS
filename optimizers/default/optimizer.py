@@ -1,7 +1,7 @@
 from scipy.optimize import minimize, basinhopping
 
 from .objective_functions import *
-from ..base import BaseOptimizer
+from .. import BaseOptimizer
 
 
 class DefaultOptimizer(BaseOptimizer):

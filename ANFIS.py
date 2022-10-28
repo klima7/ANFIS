@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from helps_and_enhancers import calculate_combinations
 from operators import productN
+from optimizers import BaseOptimizer
 
 
 class ANFIS:
@@ -117,7 +118,7 @@ class ANFIS:
         self.training_data = training_data
         self.expected_labels = expected_labels
 
-    def train(self, optimiser):
+    def train(self, optimiser: BaseOptimizer):
         start = time()
         optimiser.optimize(self)
         duration = time() - start

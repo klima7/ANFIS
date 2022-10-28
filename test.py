@@ -5,8 +5,8 @@ from ANFIS import ANFIS
 import time
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-from optimizers import DefaultOptimizer, GeneticOptimizer
-from optimizers.genetic.components import SmallestMaeErrorFitness, MultiPointCrossing, NRandomChangesMutation, RouletteWheelSelection, RankSelection
+from optimizers.default import DefaultOptimizer
+from optimizers.genetic import GeneticOptimizer, SmallestMaeErrorFitness, MultiPointCrossing, NRandomChangesMutation, RouletteWheelSelection, RankSelection
 
 
 def generate_dataset():
@@ -36,7 +36,7 @@ genetic_opt = GeneticOptimizer(
     cross_prob=0.7,
     mutate_prob=0.1,
     n_chromosomes=100,
-    n_generations=5000,
+    n_generations=50000,
     n_elite=2,
     learn_operators=False
 )
