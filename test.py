@@ -6,7 +6,7 @@ import time
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from optimizers import DefaultOptimizer, GeneticOptimizer
-from optimizers.genetic.components import SmallestMaeErrorFitness, MultiPointCrossing, NRandomChangesMutation, RouletteWheelSelection
+from optimizers.genetic.components import SmallestMaeErrorFitness, MultiPointCrossing, NRandomChangesMutation, RouletteWheelSelection, RankSelection
 
 
 def generate_dataset():
@@ -32,7 +32,7 @@ genetic_opt = GeneticOptimizer(
     SmallestMaeErrorFitness(),
     MultiPointCrossing(3),
     NRandomChangesMutation(2),
-    RouletteWheelSelection(),
+    RankSelection(5),
     cross_prob=0.7,
     mutate_prob=0.1,
     n_chromosomes=100,

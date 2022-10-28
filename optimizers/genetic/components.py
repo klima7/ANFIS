@@ -9,7 +9,7 @@ class RouletteWheelSelection(BaseSelection):
         all_indexes = np.arange(len(chromosomes))
         probability = fitnesses / np.sum(fitnesses)
         selected_indexes = np.random.choice(all_indexes, size=select_count, p=probability)
-        return chromosomes[selected_indexes]
+        return np.array(chromosomes[selected_indexes])
 
 
 class RankSelection(BaseSelection):
@@ -18,7 +18,9 @@ class RankSelection(BaseSelection):
         self.count = count
 
     def __call__(self, chromosomes, fitnesses, select_count):
-        pass
+        new_chromosomes = chromosomes[:select_count]
+        new_chromosomes[select_count-self.count:] = chromosomes[:self.count]
+        return np.array(new_chromosomes)
 
 
 class NRandomChangesMutation(BaseMutation):
