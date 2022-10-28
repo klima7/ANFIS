@@ -100,7 +100,6 @@ class ANFIS:
         return result.T    
         
     def show_results(self, color=None):
-        
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         
@@ -108,10 +107,7 @@ class ANFIS:
             color = [[1,0,0] if cc else [0,1,0] for cc in self.expected_labels]
 
         result = self.anfis_estimate_labels(self.premises,self.op,self.tsk)
-        
-        #ax.scatter(np.array(self.training_data)[:,0], np.array(self.training_data)[:,1], result, c=rgb)
         ax.scatter(self.training_data[0], self.training_data[1], result, c=color)
-        
         plt.show()
     
     def set_training_and_testing_data(self, training_data, expected_labels):

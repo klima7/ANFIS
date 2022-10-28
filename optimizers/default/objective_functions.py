@@ -8,8 +8,6 @@ def goal_premises_operators_consequents(input, self):
     new_labels = self.anfis_estimate_labels(fv, op, tsk)
 
     error = (np.abs(new_labels - self.expected_labels)).sum()
-    # error = (np.abs(new_labels - self.expected_labels)*self.entropy ).sum()
-    # error = np.sqrt(np.abs(new_labels - dataC).sum())
     return error
 
 

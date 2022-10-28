@@ -150,4 +150,4 @@ class DefaultOptimizer(BaseOptimizer):
 
         else:
             print("Error")
-            assert (0)
+            assert False
