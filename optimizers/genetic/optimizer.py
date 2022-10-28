@@ -21,8 +21,8 @@ class GeneticOptimizer(BaseOptimizer):
             mutate_prob: float = 0.1,
 
             n_chromosomes: int = 100,
-            n_generations: int = 50,
-            n_elite: int = 2,
+            n_generations: int = 1000,
+            n_elite: int = 0,
 
             bounds_premises: Tuple[float, float] = (0, 4),
             bounds_operators: Tuple[float, float] = (0, 2),
