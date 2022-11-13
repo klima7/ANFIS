@@ -1,4 +1,7 @@
+import math
+
 import numpy as np
+from tqdm import tqdm
 
 
 class PSOSolver:
@@ -26,7 +29,8 @@ class PSOSolver:
         gv = np.inf                                             # global minimum value
         gp = np.zeros((n_dim,))                                 # global minimum position
 
-        for i in range(self.max_iters):
+        iterator = tqdm(range(self.max_iters), desc='Evolving')
+        for i in iterator:
 
             # updating state
             lv, lp, gv, gp = self._get_minimums(lv, lp, gv, gp, fun, pos, inv)
@@ -41,6 +45,8 @@ class PSOSolver:
             # optional callback
             if callback:
                 callback(gp, gv, pos)
+
+            iterator.set_postfix_str(f'{np.mean(np.abs(vel)):.2f}')
 
         return gp, gv
 
@@ -57,7 +63,7 @@ class PSOSolver:
         directions = np.random.rand(self.n_particles, n_dims)
         lengths = np.sqrt(directions[:, 0]**2 + directions[:, 1]**2)
         scale_factors = self.v / lengths
-        scale_factors_transformed = np.repeat(np.expand_dims(scale_factors, axis=1), 2, axis=1)
+        scale_factors_transformed = np.repeat(np.expand_dims(scale_factors, axis=1), n_dims, axis=1)
         scaled_directions = directions * scale_factors_transformed
         return scaled_directions
 
@@ -122,3 +128,12 @@ class PSOSolver:
         acceptable = distances < self.tol
         acceptable_count = np.sum(acceptable)
         return acceptable_count >= self.n_tol
+
+
+class Phase:
+
+    def __init__(self, w=0.95, c1=0.25, c2=0.25, n_iters=math.inf):
+        self.w = w
+        self.c1 = c1
+        self.c2 = c2
+

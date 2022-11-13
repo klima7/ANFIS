@@ -87,7 +87,7 @@ class ANFIS:
         #Normalizacja normalizacja poziomów aktywacji reguł
         Rsum = np.sum(R, axis=1, keepdims=True)
 
-        Rnorm = R / Rsum
+        Rnorm = np.divide(R, Rsum, out=np.zeros_like(R), where=Rsum!=0)
         Rnorm[(Rsum==0).flatten(),:] = 0
         # wylicz wartoci przesłanek dla każdej próbki
         

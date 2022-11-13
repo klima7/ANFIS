@@ -53,7 +53,7 @@ class SwarmOptimizer(BaseOptimizer):
         best_particle, _ = self.solver.solve(self._optimized_function, constraints)
 
     def _init_aux_variables(self, anfis):
-        self.anfix = anfis
+        self.anfis = anfis
         self.premises_length = np.array(anfis.premises).size
         self.operators_length = len(anfis.op)
         self.consequents_length = len(anfis.tsk.flatten())
