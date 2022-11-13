@@ -57,9 +57,10 @@ class SwarmOptimizer(BaseOptimizer):
         self.consequents_length = len(anfis.tsk.flatten())
 
     def _construct_domain_constraints(self):
-        premises_constraints = [self.bounds_premises] * self.premises_length
-        operators_constraints = [self.bounds_operators] * self.operators_length
-        consequents_constraints = [self.bounds_consequents] * self.consequents_length
+        premises_constraints = [self.bounds_premises] * self.premises_length if self.learn_premises else []
+        operators_constraints = [self.bounds_operators] * self.operators_length if self.learn_operators else []
+        consequents_constraints = [self.bounds_consequents] * self.consequents_length if self.learn_consequents else []
+
         return [*premises_constraints, *operators_constraints, *consequents_constraints]
 
     def _optimized_function(self, particle):
