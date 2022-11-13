@@ -6,15 +6,35 @@ from tqdm import tqdm
 
 class PSOSolver:
 
-    def __init__(self, n_particles=100, w=0.95, c1=0.25, c2=0.25, v=0.5, max_iters=1000, tol=1e-3, n_tol=0.7):
+    def __init__(self, phases, n_particles=100, v=0.5, max_iters=1000, tol=1e-3, n_tol=0.7):
+        self.iter_no = 0
+        self.phases = phases
         self.n_particles = n_particles
-        self.w = np.broadcast_to(w, (n_particles,))
         self.v = np.broadcast_to(v, (n_particles,))
-        self.c1 = np.broadcast_to(c1, (n_particles,))
-        self.c2 = np.broadcast_to(c2, (n_particles,))
         self.max_iters = int(max_iters)
         self.tol = tol
         self.n_tol = n_tol if isinstance(n_tol, int) else n_tol * n_particles
+
+    @property
+    def current_phase(self):
+        cum_iters = 0
+        for phase in self.phases:
+            cum_iters += phase.phase_iters
+            if cum_iters > self.iter_no:
+                return phase
+        return self.phases[-1]
+
+    @property
+    def w(self):
+        return np.broadcast_to(self.current_phase.w, (self.n_particles,))
+
+    @property
+    def c1(self):
+        return np.broadcast_to(self.current_phase.c1, (self.n_particles,))
+
+    @property
+    def c2(self):
+        return np.broadcast_to(self.current_phase.c2, (self.n_particles,))
 
     def solve(self, fun, domain, *, callback=None):
         domain = np.array(domain)
@@ -30,7 +50,8 @@ class PSOSolver:
         gp = np.zeros((n_dim,))                                 # global minimum position
 
         iterator = tqdm(range(self.max_iters), desc='Evolving')
-        for i in iterator:
+        for iter_no in iterator:
+            self.iter_no = iter_no
 
             # updating state
             lv, lp, gv, gp = self._get_minimums(lv, lp, gv, gp, fun, pos, inv)
@@ -46,7 +67,7 @@ class PSOSolver:
             if callback:
                 callback(gp, gv, pos)
 
-            iterator.set_postfix_str(f'{np.mean(np.abs(vel)):.2f}')
+            iterator.set_postfix_str(f'v={np.mean(np.abs(vel)):.2f}, value={gv:.4f}')
 
         return gp, gv
 
@@ -132,8 +153,8 @@ class PSOSolver:
 
 class Phase:
 
-    def __init__(self, w=0.95, c1=0.25, c2=0.25, n_iters=math.inf):
+    def __init__(self, w=0.95, c1=0.25, c2=0.25, phase_iters=math.inf):
         self.w = w
         self.c1 = c1
         self.c2 = c2
-
+        self.phase_iters = phase_iters

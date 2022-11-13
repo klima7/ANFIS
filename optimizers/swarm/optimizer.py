@@ -10,10 +10,8 @@ class SwarmOptimizer(BaseOptimizer):
             self,
 
             # swarm optimization params
+            phases,
             n_particles=100,
-            w=0.95,
-            c1=0.25,
-            c2=0.25,
             v=0.5,
 
             # stop conditions
@@ -31,7 +29,7 @@ class SwarmOptimizer(BaseOptimizer):
             bounds_operators=(0, 2),
             bounds_consequents=(0, 2),
     ):
-        self.solver = PSOSolver(n_particles, w, c1, c2, v, max_iters, tol, n_tol)
+        self.solver = PSOSolver(phases, n_particles, v, max_iters, tol, n_tol)
 
         self.bounds_premises = bounds_premises
         self.bounds_operators = bounds_operators
@@ -69,8 +67,7 @@ class SwarmOptimizer(BaseOptimizer):
         self._config_anfis_from_weights(self.anfis, weights)
         predicted_labels = self.anfis.estimate_labels()
         error = np.sum(np.abs(predicted_labels - self.anfis.expected_labels))
-        fitness = 1 / error
-        return fitness
+        return error
 
     def _get_weights_from_particle(self, particle):
         all_weights = []
