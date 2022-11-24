@@ -33,14 +33,7 @@ class ANFIS:
 
         self.calculate_aids()
 
-    # Wyswietlanie funkcji przynależnosci
-    def show_inputs(self):
-        plt.figure()
-        for i in range(self.input_number):
-            plt.subplot(self.input_number, 1, i + 1)
-            self.input_list[i].show()
-            plt.legend()
-        plt.show()
+    # ----------------------- aux -----------------------
 
     def set_premises_parameters(self, fv):
         fv = np.array(fv).reshape(np.shape(self.premises))
@@ -57,6 +50,8 @@ class ANFIS:
     def calculate_aids(self):
         self.premises_combinations = np.array(calculate_combinations(self))[:, ::-1]
 
+    # -------------------- estimating --------------------
+
     def output_to_labels(self, y_pred):
         rounded = np.round(y_pred.flatten()).astype(int)
         r_shape = np.shape(rounded)
@@ -66,7 +61,6 @@ class ANFIS:
         return self.anfis_estimate_labels(self.premises, self.op, self.tsk)
 
     def anfis_estimate_labels(self, fv, op, tsk) -> np.ndarray:
-
         data = self.training_data
 
         self.set_premises_parameters(fv)
@@ -100,6 +94,20 @@ class ANFIS:
 
         return result.T
 
+    # ----------------------- training -----------------------
+
+    def set_training_and_testing_data(self, training_data, expected_labels):
+        self.training_data = training_data
+        self.expected_labels = expected_labels
+
+    def train(self, optimiser: BaseOptimizer):
+        start = time()
+        optimiser.optimize(self)
+        duration = time() - start
+        print(f'Optimization finished after {duration:.2f}s')
+
+    # -------------------- vizualization functions --------------------
+
     def show_results(self, color=None):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -111,12 +119,10 @@ class ANFIS:
         ax.scatter(self.training_data[0], self.training_data[1], result, c=color)
         plt.show()
 
-    def set_training_and_testing_data(self, training_data, expected_labels):
-        self.training_data = training_data
-        self.expected_labels = expected_labels
-
-    def train(self, optimiser: BaseOptimizer):
-        start = time()
-        optimiser.optimize(self)
-        duration = time() - start
-        print(f'Optimization finished after {duration:.2f}s')
+    def show_inputs(self):
+        plt.figure()
+        for i in range(self.input_number):
+            plt.subplot(self.input_number, 1, i + 1)
+            self.input_list[i].show()
+            plt.legend()
+        plt.show()
