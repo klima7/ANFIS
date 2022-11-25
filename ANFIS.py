@@ -25,7 +25,7 @@ class ANFIS:
             self.premises.append(self.input_list[i].get())
 
         self.premises_combinations = np.array(calculate_combinations(self))[:, ::-1]
-        self.operators_variations = list(product([self.t_norm, self.s_norm], repeat=3))
+        self.operators_variations = list(product([self.t_norm, self.s_norm], repeat=self.input_number-1))
 
         mf_combinations_count = np.prod([inp.n_functions for inp in self.input_list])
         op_variations_count = len(self.operators_variations)

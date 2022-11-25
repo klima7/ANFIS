@@ -39,7 +39,7 @@ class DefaultOptimizer(BaseOptimizer):
             bounds = bfv + bop + btsk
 
             if self.global_optimization:
-                minimizer_kwargs = {"method": "SLSQP", "bounds": bounds, "args": (self)}
+                minimizer_kwargs = {"method": "SLSQP", "bounds": bounds, "args": (anfis)}
                 res = basinhopping(goal_premises_operators_consequents, x0, minimizer_kwargs=minimizer_kwargs,
                                    niter=self.n_iter, niter_success=niter_success)
             else:
